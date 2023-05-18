@@ -1,6 +1,9 @@
 const puppeteer = require("puppeteer"); 
- 
-const Future = async (component) => { 
+const axios = require('axios')
+const cheerio = require('cheerio')
+
+
+const future = async (component) => { 
   const browser = await puppeteer.launch({ headless: false }); 
   const page = await browser.newPage(); 
   await page.goto( 
@@ -21,8 +24,9 @@ const Future = async (component) => {
       element.getAttribute("src") 
     )[1]; 
     return output; 
-  }); 
-  console.log(data); 
+  });
+  browser.close()
+  return data;
 }; 
 
 const uge = async (component) => { 
@@ -46,8 +50,60 @@ const uge = async (component) => {
       element.getAttribute("href") 
     )[36]; 
     return output; 
-  }); 
-  console.log(data); 
+  });
+  browser.close()
+  return data
 }; 
-//Future("resistor"); 
-uge("ic 555");
+async function ram(search) {
+    const url = `https://ram-e-shop.com/?s=${search.replace(' ', '+')}&post_type=product`;
+    try {
+
+      const { data } = await axios.get(url);
+      const $ = cheerio.load(data);
+
+      const prices = $("bdi");
+      const names  = $(".woocommerce-loop-product__title");
+      const images = $(".attachment-woocommerce_thumbnail.size-woocommerce_thumbnail");
+
+      const output = {
+        price: $(prices[1]).text(),
+        name : $(names[0]).text(),
+        image : $(images[0]).attr('src')
+      }
+      
+
+      return output
+    } catch (err) {
+      console.error(err);
+    }
+}
+async function free(search) {
+    const url = `https://free-electronic.com/?s=${search.replace(' ', '+')}&product_cat=0&post_type=product`;
+    try {
+      const { data } = await axios.get(url);
+      const $ = cheerio.load(data);
+
+      const prices = $(".woocommerce-Price-amount.amount");
+      const names = $(".woocommerce-loop-product__title");
+      const images = $(".attachment-woocommerce_thumbnail.size-woocommerce_thumbnail");
+      
+      const output = {
+        price: $(prices[17]).text(),
+        name : $(names[16]).text(),
+        image :$(images[16]).attr('src')
+      }
+      return output
+    } catch (err) {
+      console.error(err);
+    }
+}
+const search = async(search) => {
+    const data = {
+        ram: await ram(search),
+        free: await free(search),
+        uge: await uge(search),
+        future: await future(search)
+    }
+    return data
+}
+search("flex sensor").then((res) => console.log(res))
