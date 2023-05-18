@@ -3,7 +3,8 @@ const express = require('express')
 const router = new express.Router()
 const data=require('./app')
 
- router.get("/searchdata",async(req,res)=>{
+ router.post("/searchdata",async(req,res)=>{
+ 
     const requireddata= await data.search(req.body.component)
     res.send (requireddata)
  })

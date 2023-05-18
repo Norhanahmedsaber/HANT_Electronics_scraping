@@ -26,6 +26,7 @@ const future = async (component) => {
     return output; 
   });
   browser.close()
+  data.store = "future"
   return data;
 }; 
 
@@ -52,6 +53,8 @@ const uge = async (component) => {
     return output; 
   });
   browser.close()
+  data.store = "uge"
+
   return data
 }; 
 async function ram(search) {
@@ -63,14 +66,15 @@ async function ram(search) {
 
       const prices = $("bdi");
       const names  = $(".woocommerce-loop-product__title");
-      const images = $(".attachment-woocommerce_thumbnail.size-woocommerce_thumbnail");
+      const img = $(".attachment-woocommerce_thumbnail.size-woocommerce_thumbnail");
 
       const output = {
         price: $(prices[1]).text(),
         name : $(names[0]).text(),
-        image : $(images[0]).attr('src')
+        img : $(img[0]).attr('src')
       }
       
+  output.store = "ram"
 
       return output
     } catch (err) {
@@ -85,25 +89,33 @@ async function free(search) {
 
       const prices = $(".woocommerce-Price-amount.amount");
       const names = $(".woocommerce-loop-product__title");
-      const images = $(".attachment-woocommerce_thumbnail.size-woocommerce_thumbnail");
+      const img = $(".attachment-woocommerce_thumbnail.size-woocommerce_thumbnail");
       
       const output = {
         price: $(prices[17]).text(),
         name : $(names[16]).text(),
-        image :$(images[16]).attr('src')
+        img :$(img[16]).attr('src')
       }
+  output.store = "free"
+
       return output
     } catch (err) {
       console.error(err);
     }
 }
 const search = async(search) => {
-    const data = {
-        ram: await ram(search),
-        free: await free(search),
-        uge: await uge(search),
-        future: await future(search)
-    }
+    let data = []
+    const _ram=await ram(search)
+    const _free=await free(search)
+    const _future=await future(search)
+    const _uge=await uge(search)
+
+    _ram && (data = data.concat(_ram))
+    _free && (data = data.concat(_free))
+    _future && (data = data.concat(_future))
+    _uge && (data = data.concat(_uge))
+
+
     return data
 }
 
