@@ -4,7 +4,7 @@ const cheerio = require('cheerio')
 
 
 const future = async (component) => { 
-  const browser = await puppeteer.launch({ headless: false }); 
+  const browser = await puppeteer.launch({ headless: true }); 
   const page = await browser.newPage(); 
   await page.goto( 
     `https://store.fut-electronics.com/search?type=product&q=${component.replace( 
@@ -30,7 +30,7 @@ const future = async (component) => {
 }; 
 
 const uge = async (component) => { 
-  const browser = await puppeteer.launch({ headless: false }); 
+  const browser = await puppeteer.launch({ headless: true }); 
   const page = await browser.newPage(); 
   await page.goto( 
     `https://uge-one.com/index.php?route=product/search&search=${component.replace( 
@@ -106,4 +106,7 @@ const search = async(search) => {
     }
     return data
 }
-search("anas hesham").then((res) => console.log(res))
+
+module.exports={
+  search
+}
