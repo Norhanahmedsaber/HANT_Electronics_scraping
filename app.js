@@ -1,6 +1,7 @@
 const puppeteer = require("puppeteer"); 
 const axios = require('axios')
 const cheerio = require('cheerio')
+let response = []
 
 
 const future = async (component) => { 
@@ -27,6 +28,7 @@ const future = async (component) => {
   });
   browser.close()
   data.store = "future"
+  response = response.concat(data)
   return data;
 }; 
 
@@ -54,7 +56,7 @@ const uge = async (component) => {
   });
   browser.close()
   data.store = "uge"
-
+  response = response.concat(data)
   return data
 }; 
 async function ram(search) {
@@ -74,8 +76,8 @@ async function ram(search) {
         img : $(img[0]).attr('src')
       }
       
-  output.store = "ram"
-
+      output.store = "ram"
+      response = response.concat(output)
       return output
     } catch (err) {
       console.error(err);
@@ -96,27 +98,18 @@ async function free(search) {
         name : $(names[16]).text(),
         img :$(img[16]).attr('src')
       }
-  output.store = "free"
-
+      output.store = "free"
+      response = response.concat(output)
       return output
     } catch (err) {
       console.error(err);
     }
 }
 const search = async(search) => {
-    let data = []
-    const _ram=await ram(search)
-    const _free=await free(search)
-    const _future=await future(search)
-    const _uge=await uge(search)
-
-    _ram && (data = data.concat(_ram))
-    _free && (data = data.concat(_free))
-    _future && (data = data.concat(_future))
-    _uge && (data = data.concat(_uge))
-
-
-    return data
+    await Promise.all([ram(search), free(search), uge(search), future(search)])
+    const res = response
+    response = []
+    return res
 }
 
 module.exports={
